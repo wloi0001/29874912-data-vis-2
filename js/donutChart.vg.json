@@ -1,0 +1,55 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "width": 620,
+    "height": 400,
+
+    "data": {
+        "url": "data/worldwide_suicide_data.csv"
+    },
+    
+    "transform": [
+        {"filter": "datum.suicides_no != null"},
+        {
+            "aggregate": [{
+                "op": "sum",
+                "field": "suicides_no",
+                "as": "suicide_no_total"
+            }],
+            "groupby": ["age"]
+        }
+    ],
+
+    "encoding": {
+        "theta": {"field": "suicide_no_total", "type": "quantitative", "stack": true},
+        "color": {"field": "age", "type": "nominal", "legend": null, "scale": {"scheme": "category10"}},
+        "tooltip": [
+            {"field": "suicide_no_total", "type": "quantitative", "title": "Total suicide count"},
+            {"field": "age", "type": "ordinal", "title": "Age range"}
+        ]
+    },
+
+
+    "layer": [
+        {
+            "mark": {"type": "arc", "innerRadius": 50}
+        }, 
+        
+        {
+        "mark": {"type": "text", "radius": 150, "fill": "white"},
+        "encoding": {
+            "text": {"field": "age", "type": "nominal"}
+        }
+
+    }],
+
+    "config": {
+        "view": {
+          "stroke": "transparent"
+        },
+        "text": {
+            "fontSize": 17,
+            "fontWeight": 500,
+            "font": "sans-serif"
+        }
+    }
+  }

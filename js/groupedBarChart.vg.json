@@ -1,0 +1,90 @@
+{
+  "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+  "data": { "url": "data/worldwide_suicide_data.csv"},
+  "height": 420,
+
+  "params": [{
+    "name": "continentFilter",
+    "select": {"type": "point", "fields": ["Continent"]},
+    "bind": "legend"
+  }],
+
+  "transform": [
+    {
+      "aggregate": [
+        {
+          "op": "mean",
+          "field": "suicides_rate",
+          "as": "avg_suicide_rate"
+        }
+      ],
+      "groupby": ["age","Continent"]
+    }
+],
+
+  "width": {"step": 30},
+  "mark": "bar",
+
+  "encoding": {
+    "column": {
+      "field": "age",
+      "type": "ordinal", 
+      "title": "Age range",
+      "spacing": 45,
+      "header": {
+        "orient": "bottom",
+        "labelFontSize":13,
+        "titleFontSize": 13,
+        "titleFontWeight": "bold",
+        "titleFont": "sans-serif",
+        "labelFont": "sans-serif"
+    
+      }
+    },
+
+    "y": {
+      "aggregate": "mean", 
+      "field": "avg_suicide_rate",
+      "title": "Average suicide rate",
+      "axis": {"grid": false}
+    },
+
+    "x": {
+      "field": "Continent",
+      "axis": null
+    },
+    
+    "color": {
+      "field": "Continent",
+      "scale": {"range": ["#cc7fff", "#b24cff", "#e6e665","#7fcc4c","#99ff4c", "#6565e6"]},
+      "legend": {
+        "labelFontSize":13,
+        "titleFontSize": 13,
+        "titleFontWeight": "bold",
+        "titleFont": "sans-serif",
+        "labelFont": "sans-serif"
+      }
+    },
+
+    "tooltip": [
+      {"field": "avg_suicide_rate", "type": "quantitative", "title": "Average suicide rate"},
+      {"field": "Continent", "type": "ordinal"}
+    ],
+
+    "opacity": {
+      "condition": {"param": "continentFilter", "value": 1},
+      "value": 0.08
+    }
+  },
+  "config": {
+    "view": {"stroke": "transparent"},
+    "axis": {
+      "domainWidth": 1,
+      "labelFontSize":13,
+      "titleFontSize": 13,
+      "titleFontWeight": "bold",
+      "titleFont": "sans-serif",
+      "labelFont": "sans-serif"
+    }
+  }
+}

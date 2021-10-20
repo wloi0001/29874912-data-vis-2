@@ -1,0 +1,109 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+    "data": {"url": "data/worldwide_suicide_data.csv"},
+    "width": 650,
+    "height": 390,
+
+    "params": [
+        {
+            "name": "year_filter",
+            "value": 2016,
+            "bind": {
+                "input": "range",
+                "min": 1991,
+                "max": 2016,
+                "step": 1,
+                "name": "Minimum Year: "
+            }
+        }
+    ],
+    
+    "transform": [
+        {"filter": {"timeUnit": "year", "field": "year", "lte": "year_filter"}},
+        {
+            "aggregate": [{
+                "op": "sum",
+                "field": "suicides_no",
+                "as": "suicide_no_total"
+            }],
+            "groupby": ["sex", "year"]
+        }
+    ],
+
+    "encoding": {
+        "y": {
+            "field": "suicide_no_total",
+            "type": "quantitative",
+            "title": "Suicide count",
+            "axis": {"grid": false}
+        },
+        "x": {
+            "timeUnit": "year", 
+            "field": "year",
+            "title": "Year",
+            "axis": {"grid": false}
+        }
+    },
+
+    "config": {
+        "view": {
+          "stroke": "transparent"
+        },
+        "axis": {
+            "titleFont": "sans-serif",
+            "labelFont": "sans-serif",
+            "titleFontSize": 13,
+            "labelFontSize": 13,
+            "titleFontWeight": "bold"
+        }
+    },
+
+    "layer": [
+        {
+            "mark": "line",
+            "encoding": {
+                "detail": {
+                    "timeUnit": "year",
+                    "field": "year",
+                    "type": "nominal"
+                },
+                "color": {"value": "#D3D3D3"},
+                "strokeWidth":{"value": 4}
+            }
+        },
+        {
+            "mark": {
+                "type": "point",
+                "filled": true
+            },
+            "encoding": {
+                "color": {
+                    "field": "sex",
+                    "type": "ordinal",
+                    "scale": {"range": ["#FFC0CB", "#0096FF"]},
+                    "title": "Gender",
+                    "legend": {
+                        "orient": "none", 
+                        "legendX": 600, 
+                        "legendY": -20,
+                        "labelFontSize":13,
+                        "titleFontSize": 13,
+                        "titleFontWeight": "bold",
+                        "titleFont": "sans-serif",
+                        "labelFont": "sans-serif"
+                    }
+                },
+
+                "tooltip": [
+                    {"timeUnit":"year", "field": "year", "type": "ordinal", "title": "Year"},
+                    {"field": "suicide_no_total", "type": "quantitative", "title": "Suicide count"},
+                    {"field": "sex", "type": "ordinal", "title": "Gender"}
+                ],
+
+                "size": {"value": 200},
+                "opacity": {"value": 1}
+            }
+        }
+    ]
+  }
+  

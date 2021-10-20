@@ -1,0 +1,290 @@
+{
+  "$schema": "https://vega.github.io/schema/vega/v5.json",
+  "width": 850,
+  "height": 290,
+
+  "signals": [
+    { "name": "tx", "update": "width / 2" },
+    { "name": "ty", "update": "height / 2" },
+    {
+      "name": "scale",
+      "value": 200,
+      "on": [{
+        "events": {"type": "wheel", "consume": true},
+        "update": "clamp(scale * pow(1.0005, -event.deltaY * pow(16, event.deltaMode)), 200, 450)"
+      }]
+    },
+    {
+      "name": "angles",
+      "value": [0, 0],
+      "on": [{
+        "events": "mousedown",
+        "update": "[rotateX, rotateY]"
+      }]
+    },
+    {
+      "name": "cloned",
+      "value": null,
+      "on": [{
+        "events": "mousedown",
+        "update": "copy('projection')"
+      }]
+    },
+    {
+      "name": "start",
+      "value": null,
+      "on": [{
+        "events": "mousedown",
+        "update": "invert(cloned, xy())"
+      }]
+    },
+    {
+      "name": "drag", "value": null,
+      "on": [{
+        "events": "[mousedown, window:mouseup] > window:mousemove",
+        "update": "invert(cloned, xy())"
+      }]
+    },
+    {
+      "name": "deltaX", "value": null,
+      "on": [{
+        "events": {"signal": "drag"},
+        "update": "[drag[0] - start[0], start[1] - drag[1]]"
+      }]
+    },
+    {
+      "name": "deltaY", "value": null,
+      "on": [{
+        "events": {"signal": "drag"},
+        "update": "[start[0] - drag[0] , drag[1] - start[1]]"
+      }]
+    },
+    {
+      "name": "rotateX", "value": 0,
+      "on": [{
+        "events": {"signal": "deltaX"},
+        "update": "angles[0] + deltaX[0]"
+      }]
+    },
+    {
+      "name": "rotateY", "value": 0,
+      "on": [{
+        "events": {"signal": "deltaY"},
+        "update": "clamp(angles[1] + deltaY[1], -60, 60)"
+      }]
+    },
+    {
+      "name": "clear", "value": true,
+      "on": [
+        {
+          "events": "dblclick",
+          "update": "true",
+          "force": true
+        }
+      ]
+    },
+    {
+      "name": "shift", "value": false,
+      "on": [
+        {
+          "events": "@legendSymbol:click, @legendLabel:click",
+          "update": "event.shiftKey",
+          "force":  true
+        }
+      ]
+    },
+    {
+      "name": "clicked", "value": null,
+      "on": [
+        {
+          "events": "@legendSymbol:click, @legendLabel:click",
+          "update": "{value: datum.value}",
+          "force":  true
+        }
+      ]
+    },
+    {
+      "name": "Continent_selection",
+      "bind": {
+        "input": "select",
+        "options": [null, "North America", "South America", "Europe", "Africa", "Asia", "Oceania"],
+        "labels":["Show All", "North America", "South America", "Europe", "Africa", "Asia", "Oceania"],
+        "name": "Continent Selection: "
+      }
+    },
+    {
+      "name": "Suicide_rate_filter",
+      "value": 0,
+      "bind": {
+        "input": "range",
+        "min": 0,
+        "max": 30,
+        "step": 1,
+        "name": "Minimum suicide rate: "
+      }
+    }
+  ],
+
+  "data": [
+    {
+      "name": "suicide_rate_csv",
+      "url": "data/suicide_rate_stats.csv",
+      "format": {"type": "csv", "parse": "auto"}
+    },
+    {
+      "name": "world",
+      "url": "js/world.topo.json",
+      "format": {"type": "topojson", "feature": "world.geo"},
+      "transform": [
+        {
+          "type": "lookup", 
+          "from": "suicide_rate_csv", 
+          "key": "Country", 
+          "values": ["suicide_rate"], 
+          "fields": ["properties.name"],
+          "as": ["suicide_rate"]
+        },
+        {
+          "type": "filter",
+          "expr": "Continent_selection == null || datum.properties.continent == Continent_selection"
+        },
+        {
+          "type": "filter",
+          "expr": "datum.suicide_rate > Suicide_rate_filter"
+        }
+      ]
+    },
+    {
+      "name": "graticule",
+      "transform": [
+        { "type": "graticule", "step": [15, 15] }
+      ]
+    },
+    {
+      "name": "selected",
+      "on": [
+        {"trigger": "clear", "remove": true},
+        {"trigger": "!shift", "remove": true},
+        {"trigger": "!shift && clicked", "insert": "clicked"},
+        {"trigger": "shift && clicked", "toggle": "clicked"}
+      ]
+    }
+  ],
+
+  "projections": [
+    {
+      "name": "projection",
+      "type": "orthographic",
+      "scale": {"signal": "scale"},
+      "rotate": [{"signal": "rotateX"}, {"signal": "rotateY"}, 0],
+      "translate": [{"signal": "tx"}, {"signal": "ty"}],
+      "center": [15, -27]
+    }
+  ],
+
+  "scales": [
+    {
+      "name": "color",
+      "type": "linear",
+      "domain": {"data": "world", "field": "suicide_rate"},
+      "range": {"scheme": "yelloworangered"}
+    },
+    {
+      "name": "color2",
+      "type": "ordinal",
+      "range": ["#7fcc4c", "#99ff4c", "#e6e665", "#6565e6", "#b24cff", "#cc7fff"],
+      "domain": {"data": "world", "field": "properties.continent"}
+    }
+  ],
+
+  "legends": [
+    {
+      "fill": "color",
+      "orient":"none",
+      "title": "Suicide rate",
+      "titleOrient":"left",
+      "legendX": 40,
+      "legendY": -160,
+      "labelFontSize":13,
+      "titleFontSize": 13,
+      "titleFontWeight": "bold",
+      "titleFont": "sans-serif",
+      "labelFont": "sans-serif"
+    },
+    {
+      "stroke": "color2",
+      "orient": "none",
+      "legendX": 610,
+      "legendY": -170,
+      "labelFontSize":13,
+      "titleFontSize": 13,
+      "titleFontWeight": "bold",
+      "titleFont": "sans-serif",
+      "labelFont": "sans-serif",
+      "title": ["Continent"],
+      "encode": {
+        "symbols": {
+          "name": "legendSymbol",
+          "interactive": true,
+          "update": {
+            "fill": {"value": "transparent"},
+            "strokeWidth": {"value": 2},
+            "opacity": [
+              {"test": "!length(data('selected')) || indata('selected', 'value', datum.value)", "value": 1.0},
+              {"value": 0.15}
+            ]
+          }
+        },
+        "labels": {
+          "name": "legendLabel",
+          "interactive": true,
+          "update": {
+            "opacity": [
+              {"test": "!length(data('selected')) || indata('selected', 'value', datum.value)", "value": 1},
+              {"value": 0.25}
+            ]
+          }
+        }
+      }
+    }
+  ],
+
+  "marks": [
+    {
+      "type": "shape",
+      "from": {"data": "graticule"},
+      "encode": {
+        "enter": {
+          "strokeWidth": {"value": 1},
+          "stroke": {"value": "#ddd"},
+          "fill": {"value": null}
+        }
+      },
+      "transform": [
+        { "type": "geoshape", "projection": "projection" }
+      ]
+    },
+    {
+      "type": "shape",
+      "interactive": true,
+      "from": {"data": "world"},
+      "encode": {
+        "update": {
+          "strokeWidth": {"value": 1.3},
+          "stroke": {"scale": "color2", "field": "properties.continent", "type":"ordinal"},
+          "opacity": [
+            {"test": "(!length(data('selected')) || indata('selected', 'value', datum.properties.continent))", "value": 0.7 },
+            {"value": 0.15}
+          ],
+          "fill": {"scale": "color", "field": "suicide_rate","type": "quantitative"},
+          "tooltip":[
+            {"signal": "{'title': datum.properties.name,'Suicide rate': datum.suicide_rate, 'Continent': datum.properties.continent}"}
+          ]
+        }
+      },
+      "transform": [
+        { "type": "geoshape", "projection": "projection"}
+      ]
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+{
+    "$schema": "https://vega.github.io/schema/vega-lite/v5.json",    
+    
+    "data": {
+        "url": "data/worldwide_suicide_data.csv"
+    },
+
+    
+    "transform": [
+        {
+            "aggregate": [
+                {
+                    "op": "mean",
+                    "field": "suicides_rate",
+                    "as": "avg_suicide_rate"
+                },
+                {
+                    "op": "mean",
+                    "field": "gdp_per_capita",
+                    "as": "avg_GDP"
+                }
+        
+            ],
+            "groupby": ["Continent"]
+        }
+    ],
+
+
+    "spacing": 10,
+
+    "hconcat": [{
+        "mark": "bar",
+        "width": 380,
+        "height": 350,
+        "encoding": {
+            "y": {
+                "field": "Continent", "axis": null, "sort": "descending"
+            },
+
+            "x": {
+                "aggregate": "mean", 
+                "field": "avg_GDP",
+                "title": "Average GDP per capita",
+                "axis": {"format": "s"},
+                "sort": "descending"
+            },
+
+
+            "color": {
+                "field": "Continent",
+                "scale": {"range": ["#cc7fff", "#b24cff", "#e6e665","#7fcc4c","#99ff4c", "#6565e6"]},
+                "legend": null
+            },
+
+            "tooltip": [
+                {"field": "avg_GDP", "type": "quantitative", "title": "Average GDP per capita"},
+                {"field": "Continent", "type": "ordinal"}
+            ]
+        }
+    }, 
+    
+    {   
+        "width": 0,
+        "height": 350,
+        "view": {"stroke": null},
+        "mark": {
+            "type": "text",
+            "align": "center"
+        },
+        "encoding": {
+            "y": {"field": "Continent", "type": "ordinal", "sort": "descending", "axis":null},
+            "text": {"field": "Continent", "type": "ordinal"}
+        }
+    }, 
+    
+    {
+        "mark": "bar",
+        "width": 380,
+        "height": 350,
+        "encoding": {
+            "y": {
+                "field": "Continent", 
+                "axis": null, 
+                "sort": "descending"
+            },
+
+            "x": {
+                "aggregate": "mean", 
+                "field": "avg_suicide_rate",
+                "title": "Average suicide rate",
+                "axis": {"format": "s"}
+            },
+
+            "color": {
+                "field": "Continent",
+                "legend": null
+            },
+
+            "tooltip": [
+                {"field": "avg_suicide_rate", "type": "quantitative", "title": "Average suicide rate"},
+                {"field": "Continent", "type": "ordinal"}
+            ]
+        }
+    }],
+    "config": {
+        "view": {"stroke": null},
+        "axis": {
+            "grid": false,
+            "labelFontSize":13,
+            "titleFontSize": 13,
+            "titleFontWeight": "bold",
+            "titleFont": "sans-serif",
+            "labelFont": "sans-serif"
+        },
+        "text": {
+            "fontSize": 14,
+            "fontWeight": "bold"
+        }
+    }
+    
+  }
+  

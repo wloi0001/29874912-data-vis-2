@@ -1,0 +1,64 @@
+
+h1{
+  font-weight: 900;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 80px;
+}
+
+h4{
+  text-align: center;
+  background-color: lightgray;
+  padding: 10px;
+  margin: 10px;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 21px;
+}
+
+p{
+  font-size: 24px;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+body{
+  background-color: lightgray;
+}
+
+.visualPage{
+  width: 1500px;      
+  background-color: white; 
+  margin: auto;
+  padding: 50px;
+  padding-top: 35px;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.vis-container{
+  width: 100%;
+  font-size: 16px;
+}
+
+.pure-g{
+  margin-bottom: 25px;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 16px;
+}
+
+.pure-g-title{
+  margin-bottom: 25px;
+  background-color: lightgray;
+  padding: 10px;
+  font-family: 'Source Sans Pro', sans-serif;
+}
+
+.pure-g-pageEnd{
+  text-align: center;
+  background-color: lightgray;
+  padding: 10px;
+  font-family: 'Source Sans Pro', sans-serif;
+  font-size: 12px;
+}
+
+small{
+  font-size: 14px;
+  font-family: 'Source Sans Pro', sans-serif;
+}
